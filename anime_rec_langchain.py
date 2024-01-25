@@ -49,11 +49,6 @@ else:
    )
     
 
-question = "What's a good anime with lots of action?"
-    
-# Use the vector database as a retriever and get the relevant documents for a quesiton
-#print(docsearch.as_retriever().get_relevant_documents(question))
-
 #Create prompt templates 
 DOCUMENT_PROMPT = """{page_content}
 MyAnimeList link: {link}
@@ -94,7 +89,7 @@ question_prompt = PromptTemplate.from_template(QUESTION_PROMPT)
 
 
 def generate_response(question):
-    #create the QA bot LLM chain
+    #create the QA LLM chain
     qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
         chain_type="stuff",
         llm = ChatOpenAI(openai_api_key = OPENAI_API_KEY, model_name = "gpt-3.5-turbo", temperature=0),
@@ -105,8 +100,3 @@ def generate_response(question):
         retriever = docsearch.as_retriever()
     )
     return qa_with_sources(question)
-
-
-#ask question
-response = generate_response(question)
-print(response)
