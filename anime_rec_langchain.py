@@ -1,6 +1,6 @@
 import pickle
 from langchain.document_loaders import DataFrameLoader
-from apikey import OPENAI_API_KEY, PINECONE_API_KEY
+import streamlit as st
 import pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
@@ -17,7 +17,7 @@ with open('dataframe.pkl', 'rb') as file:
 docs = DataFrameLoader(anime, page_content_column="page_content").load()
 
 #initialize pinecone
-pinecone.init(api_key = PINECONE_API_KEY, environment="gcp-starter")
+pinecone.init(api_key = st.secrets["PINECONE_API_KEY"], environment="gcp-starter")
 
 index_name = "animes"
 #check that the given index does not exist yet
@@ -30,7 +30,7 @@ if index_name not in pinecone.list_indexes():
     )
 
 #Fill the index with embeddings
-embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["OPENAI_API_KEY"])
 index = Index(index_name)
 
 #check if there is already data in the index on Pinecone
@@ -92,7 +92,7 @@ def generate_response(question):
     #create the QA LLM chain
     qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
         chain_type="stuff",
-        llm = ChatOpenAI(openai_api_key = OPENAI_API_KEY, model_name = "gpt-3.5-turbo", temperature=0),
+        llm = ChatOpenAI(openai_api_key = st.secrets["OPENAI_API_KEY"], model_name = "gpt-3.5-turbo", temperature=0),
         chain_type_kwargs= {
             "prompt": question_prompt,
             "document_prompt": document_prompt
